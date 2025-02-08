@@ -1,9 +1,7 @@
-package com.miche.techensemblemain.api.user.service;
+package com.miche.techensemblesub1.api.user.service;
 
-import com.miche.techensemblemain.api.user.record.UserListResponseRecord;
-import com.miche.techensemblemain.api.user.repository.UserRepository;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import com.miche.techensemblesub1.api.user.record.UserListResponseRecord;
+import com.miche.techensemblesub1.api.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

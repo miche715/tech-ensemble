@@ -1,30 +1,28 @@
 package com.miche.techensemblemain.api.user.controller;
 
-import com.miche.techensemblemain.api.user.record.UserListResponseRecord;
-import com.miche.techensemblemain.api.user.service.UserService;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserController {
-    private UserService userService;
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(KafkaTemplate<String, String> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<UserListResponseRecord>> getUserList() {
-        return ResponseEntity.ok(userService.getUserList());
+    public ResponseEntity<String> getUserList() {
+        kafkaTemplate.send("topic-100", "asd");
+
+        return ResponseEntity.ok("요청 전달");
     }
 }

@@ -1,6 +1,6 @@
-package com.miche.techensemblemain.api.user.repository;
+package com.miche.techensemblesub1.api.user.repository;
 
-import com.miche.techensemblemain.entity.T_USER;
+import com.miche.techensemblesub1.entity.T_USER;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

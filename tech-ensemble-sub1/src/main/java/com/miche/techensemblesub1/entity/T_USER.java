@@ -1,4 +1,4 @@
-package com.miche.techensemblemain.entity;
+package com.miche.techensemblesub1.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

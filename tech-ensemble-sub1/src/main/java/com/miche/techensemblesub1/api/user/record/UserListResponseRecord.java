@@ -1,4 +1,4 @@
-package com.miche.techensemblemain.api.user.record;
+package com.miche.techensemblesub1.api.user.record;
 
 import lombok.Builder;
 import lombok.Getter;
