@@ -1,4 +1,4 @@
-package server.verticle;
+package core.server.verticle;
 
 import com.google.gson.Gson;
 import common.gson.GsonProvider;
