@@ -7,7 +7,7 @@ PORT = 1234  # 서버의 포트 번호
 
 # JSON 형식의 메시지 생성
 message_data = {
-    "verticleType": "three",  # 원하는 verticleType 설정
+    "verticleType": "one",  # 원하는 verticleType 설정
     "commandType": "a",  # 원하는 commandType 설정
     "message": "Hello, Vert.x!"
 }

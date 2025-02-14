@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    application
 }
 
 group = "com.miche"
@@ -25,4 +26,16 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.jar {
+    manifest {
+        attributes["Main-Class"] = "MainVerticle" // 메인 클래스 설정 (파일명에 따라 변경)
+    }
+
+    from(
+        configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) }
+    )
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
