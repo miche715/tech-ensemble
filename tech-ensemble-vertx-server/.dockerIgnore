@@ -1,5 +1,7 @@
-target
-*.iml
 .gradle
-.git
-.DS_Store
+.idea
+.dockerIgnore
+.gitignore
+Dockerfile
+gradlew
+gradlew.bat
