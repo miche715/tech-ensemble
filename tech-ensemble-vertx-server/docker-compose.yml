@@ -15,23 +15,32 @@ services:
     hostname: kafka
     container_name: kafka
     ports:
-      - "9092:9092"      # 컨테이너 내부에서 접근하는 포트
-      - "29092:29092"    # 로컬에서 접근할 때 사용
+      - "9092:9092"
+#      - "29092:29092"
     environment:
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://host.docker.internal:29092  # 로컬에서 접근 가능한 호스트 추가
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     depends_on:
       - zookeeper
 
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    container_name: kafka-ui
+    ports:
+      - "8090:8080"
+    restart: always
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:29092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+
   tech-ensemble-vertx-server:
     build: .
-    container_name: tech-ensemble-vertx-server
+#    container_name: tech-ensemble-vertx-server
     ports:
       - "1234:1234"
-    environment:
-      KAFKA_BROKER: host.docker.internal:29092  # 로컬에서 카프카 접근을 위해 외부 호스트를 사용
     depends_on:
       - kafka

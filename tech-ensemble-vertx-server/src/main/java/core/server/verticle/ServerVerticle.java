@@ -24,11 +24,11 @@ public class ServerVerticle extends AbstractVerticle {
         vertx.eventBus().registerDefaultCodec(VertxMessageRecord.class, new VertxMessageRecordCodec());
 
         vertx.createNetServer().connectHandler(socket -> {
-            System.out.println("Client connected: " + socket.remoteAddress() + ".");
+            System.out.println("Client connected: " + socket.remoteAddress());
 
             socket.handler(buffer -> {
                 VertxMessageRecord vertxMessageRecord = gson.fromJson(buffer.toString(), VertxMessageRecord.class);
-                System.out.println("수신: " + vertxMessageRecord);
+                System.out.println("Receive Packet: " + vertxMessageRecord);
 
                 switch(vertxMessageRecord.verticleType()) {
                     case "one":
@@ -53,7 +53,7 @@ public class ServerVerticle extends AbstractVerticle {
                 socket.write(gson.toJson(vertxMessageRecord));
             });
 
-            socket.closeHandler(v -> System.out.println("클라이언트 연결 종료"));
+            socket.closeHandler(v -> System.out.println("Client disconnected: " + socket.remoteAddress()));
         }).listen(1234, result -> {
             if(result.succeeded()) {
                 System.out.println("Server started on port 1234.");

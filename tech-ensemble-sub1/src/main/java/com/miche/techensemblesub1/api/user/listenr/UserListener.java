@@ -15,7 +15,7 @@ public class UserListener {
         this.userService = userService;
     }
 
-    @KafkaListener(topics = "topic-100", groupId = "group-100-1")
+    @KafkaListener(topics = "topic-100", groupId = "group-100")
     public void getUserList(ConsumerRecord<String, String> consumerRecord) {
         System.out.println(consumerRecord);
     }

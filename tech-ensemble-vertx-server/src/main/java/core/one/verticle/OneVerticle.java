@@ -8,12 +8,14 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
+import lombok.SneakyThrows;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.StringSerializer;
-import java.util.Properties;
+import org.apache.kafka.clients.producer.RecordMetadata;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 public class OneVerticle extends AbstractVerticle {
     private final Gson gson = GsonProvider.getInstance();
@@ -26,23 +28,46 @@ public class OneVerticle extends AbstractVerticle {
         messageConsumer.handler((Message<VertxMessageRecord> message) -> {
             System.out.println("OneVerticle");
 
-            vertx.executeBlocking(promise -> {
-                try {
-                    VertxMessageRecord vertxMessageRecord = message.body();
-                    ProducerRecord<String, String> producerRecord = new ProducerRecord<>("topic-100", gson.toJson(vertxMessageRecord));
+            VertxMessageRecord vertxMessageRecord = message.body();
+            ProducerRecord<String, String> producerRecord = new ProducerRecord<>("topic-100", gson.toJson(vertxMessageRecord));
 
-                    kafkaProducer.send(producerRecord);
-                    promise.complete();
-                } catch (Exception e) {
-                    promise.fail(e);
+            CompletableFuture.runAsync(() -> {
+                try {
+                    Future<RecordMetadata> recordMetadataFuture = kafkaProducer.send(producerRecord);
+
+                    System.out.println("sdfsdfsdfsfsfs");
+                    System.out.println("get: " + recordMetadataFuture.get());
+                    System.out.println("isCancelled: " + recordMetadataFuture.isCancelled());
+                    System.out.println("isDone: " + recordMetadataFuture.isDone());
+                    System.out.println("topic: " + recordMetadataFuture.get().topic());
+                } catch(Exception e) {
+                    System.out.println(e.getMessage());
                 }
-            }, res -> {
-                if(res.succeeded()) {
-                    System.out.println("Kafka message sent successfully");
-                } else {
-                    System.err.println("Failed to send Kafka message: " + res.cause());
-                }
+            }).thenAccept(metadata -> {
+                System.out.println("Kafka message sent successfully: " + metadata);
+            }).exceptionally(ex -> {
+                System.err.println("Failed to send Kafka message: " + ex.getMessage());
+
+                return null;
             });
+
+//            vertx.executeBlocking(promise -> {
+//                try {
+//                    VertxMessageRecord vertxMessageRecord = message.body();
+//                    ProducerRecord<String, String> producerRecord = new ProducerRecord<>("topic-100", gson.toJson(vertxMessageRecord));
+//
+//                    kafkaProducer.send(producerRecord);
+//                    promise.complete();
+//                } catch (Exception e) {
+//                    promise.fail(e);
+//                }
+//            }, res -> {
+//                if(res.succeeded()) {
+//                    System.out.println("Kafka message sent successfully");
+//                } else {
+//                    System.err.println("Failed to send Kafka message: " + res.cause());
+//                }
+//            });
         });
     }
 }
