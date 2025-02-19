@@ -26,6 +26,11 @@ public class TwoVerticle extends BaseVerticle {
 
             switch(vertxMessageRecord.commandType()) {
                 case CommonCode.COMMAND_TYPE_A: {
+
+                    break;
+                }
+
+                case CommonCode.COMMAND_TYPE_B: {
                     ProducerRecord<String, String> producerRecord = new ProducerRecord<>(CommonCode.TOPIC_200, gson.toJson(vertxMessageRecord));
 
                     CompletableFuture.runAsync(() -> {
@@ -45,14 +50,13 @@ public class TwoVerticle extends BaseVerticle {
                     break;
                 }
 
-                case CommonCode.COMMAND_TYPE_B: {
-                    System.out.println("bb " + vertxMessageRecord);
+                case CommonCode.COMMAND_TYPE_C: {
+                    getMessageProducer(CommonCode.EVENT_BUS_ADDRESS_THREE).write(vertxMessageRecord);
 
                     break;
                 }
 
-                case CommonCode.COMMAND_TYPE_C: {
-                    System.out.println("cc " + vertxMessageRecord);
+                case CommonCode.COMMAND_TYPE_D: {
 
                     break;
                 }
