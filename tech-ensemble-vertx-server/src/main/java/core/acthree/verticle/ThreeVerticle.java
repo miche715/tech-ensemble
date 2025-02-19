@@ -1,10 +1,9 @@
 package core.acthree.verticle;
 
-import com.google.gson.Gson;
-import common.gson.GsonProvider;
+import common.code.CommonCode;
 import common.kafka.KafkaPropertyProvider;
 import common.record.VertxMessageRecord;
-import io.vertx.core.AbstractVerticle;
+import common.vertx.BaseVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
@@ -14,47 +13,54 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.util.concurrent.CompletableFuture;
 
-public class ThreeVerticle extends AbstractVerticle {
-    private final Gson gson = GsonProvider.getInstance();
+public class ThreeVerticle extends BaseVerticle {
     private final Producer<String, String> kafkaProducer = new KafkaProducer<>(KafkaPropertyProvider.getKafkaProducerProperties());
 
     @Override
     public void start(Promise<Void> startPromise) {
-        MessageConsumer<VertxMessageRecord> messageConsumer = vertx.eventBus().consumer("event-300");
+        MessageConsumer<VertxMessageRecord> messageConsumer = vertx.eventBus().consumer(CommonCode.EVENT_BUS_ADDRESS_THREE);
 
         messageConsumer.handler((Message<VertxMessageRecord> message) -> {
-            System.out.println("ThreeVerticle");
-
             VertxMessageRecord vertxMessageRecord = message.body();
-            ProducerRecord<String, String> producerRecord = new ProducerRecord<>("topic-300", gson.toJson(vertxMessageRecord));
+            System.out.println("ThreeVerticle receive message: " + vertxMessageRecord);
 
-            CompletableFuture.runAsync(() -> {
-                kafkaProducer.send(producerRecord);
-            }).thenAccept(metadata -> {
-                System.out.println("Kafka message sent successfully: " + metadata);
-            }).exceptionally(ex -> {
-                System.err.println("Failed to send Kafka message: " + ex.getMessage());
+            switch(vertxMessageRecord.commandType()) {
+                case CommonCode.COMMAND_TYPE_A: {
+                    ProducerRecord<String, String> producerRecord = new ProducerRecord<>(CommonCode.TOPIC_300, gson.toJson(vertxMessageRecord));
 
-                return null;
-            });
+                    CompletableFuture.runAsync(() -> {
+                        try {
+                            kafkaProducer.send(producerRecord);
+                        } catch(Exception e) {
+                            System.out.println("Failed to send Kafka message1: " + e.getMessage());
+                        }
+                    }).thenAccept(metadata -> {
+                        System.out.println("Kafka message sent successfully");
+                    }).exceptionally(ex -> {
+                        System.err.println("Failed to send Kafka message2: " + ex.getMessage());
 
-//            vertx.executeBlocking(promise -> {
-//                try {
-//                    VertxMessageRecord vertxMessageRecord = message.body();
-//                    ProducerRecord<String, String> producerRecord = new ProducerRecord<>("topic-300", gson.toJson(vertxMessageRecord));
-//
-//                    kafkaProducer.send(producerRecord);
-//                    promise.complete();
-//                } catch (Exception e) {
-//                    promise.fail(e);
-//                }
-//            }, res -> {
-//                if(res.succeeded()) {
-//                    System.out.println("Kafka message sent successfully");
-//                } else {
-//                    System.err.println("Failed to send Kafka message: " + res.cause());
-//                }
-//            });
+                        return null;
+                    });
+
+                    break;
+                }
+
+                case CommonCode.COMMAND_TYPE_B: {
+                    System.out.println("bb " + vertxMessageRecord);
+
+                    break;
+                }
+
+                case CommonCode.COMMAND_TYPE_C: {
+                    System.out.println("cc " + vertxMessageRecord);
+
+                    break;
+                }
+
+                default: {
+                    break;
+                }
+            }
         });
     }
 }

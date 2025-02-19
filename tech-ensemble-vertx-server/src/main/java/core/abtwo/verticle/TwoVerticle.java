@@ -1,11 +1,9 @@
 package core.abtwo.verticle;
 
-import com.google.gson.Gson;
-import common.gson.GsonProvider;
+import common.code.CommonCode;
 import common.kafka.KafkaPropertyProvider;
 import common.record.VertxMessageRecord;
 import common.vertx.BaseVerticle;
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
@@ -20,15 +18,15 @@ public class TwoVerticle extends BaseVerticle {
 
     @Override
     public void start(Promise<Void> startPromise) {
-        MessageConsumer<VertxMessageRecord> messageConsumer = vertx.eventBus().consumer("event-200");
+        MessageConsumer<VertxMessageRecord> messageConsumer = vertx.eventBus().consumer(CommonCode.EVENT_BUS_ADDRESS_TWO);
 
         messageConsumer.handler((Message<VertxMessageRecord> message) -> {
             VertxMessageRecord vertxMessageRecord = message.body();
             System.out.println("TwoVerticle receive message: " + vertxMessageRecord);
 
             switch(vertxMessageRecord.commandType()) {
-                case "a":
-                    ProducerRecord<String, String> producerRecord = new ProducerRecord<>("topic-200", gson.toJson(vertxMessageRecord));
+                case CommonCode.COMMAND_TYPE_A: {
+                    ProducerRecord<String, String> producerRecord = new ProducerRecord<>(CommonCode.TOPIC_200, gson.toJson(vertxMessageRecord));
 
                     CompletableFuture.runAsync(() -> {
                         try {
@@ -45,19 +43,23 @@ public class TwoVerticle extends BaseVerticle {
                     });
 
                     break;
+                }
 
-                case "b":
+                case CommonCode.COMMAND_TYPE_B: {
                     System.out.println("bb " + vertxMessageRecord);
 
                     break;
+                }
 
-                case "c":
+                case CommonCode.COMMAND_TYPE_C: {
                     System.out.println("cc " + vertxMessageRecord);
 
                     break;
+                }
 
-                default:
+                default: {
                     break;
+                }
             }
         });
     }

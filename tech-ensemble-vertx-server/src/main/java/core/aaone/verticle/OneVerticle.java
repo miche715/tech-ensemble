@@ -1,5 +1,6 @@
 package core.aaone.verticle;
 
+import common.code.CommonCode;
 import common.kafka.KafkaPropertyProvider;
 import common.record.VertxMessageRecord;
 import common.vertx.BaseVerticle;
@@ -17,15 +18,15 @@ public class OneVerticle extends BaseVerticle {
 
     @Override
     public void start(Promise<Void> startPromise) {
-        MessageConsumer<VertxMessageRecord> messageConsumer = vertx.eventBus().consumer("event-100");  // event-100 주소로 부터 받음.
+        MessageConsumer<VertxMessageRecord> messageConsumer = vertx.eventBus().consumer(CommonCode.EVENT_BUS_ADDRESS_ONE);
 
         messageConsumer.handler((Message<VertxMessageRecord> message) -> {
             VertxMessageRecord vertxMessageRecord = message.body();
             System.out.println("OneVerticle receive message: " + vertxMessageRecord);
 
             switch(vertxMessageRecord.commandType()) {
-                case "a": {
-                    ProducerRecord<String, String> producerRecord = new ProducerRecord<>("topic-100", gson.toJson(vertxMessageRecord));
+                case CommonCode.COMMAND_TYPE_A: {
+                    ProducerRecord<String, String> producerRecord = new ProducerRecord<>(CommonCode.TOPIC_100, gson.toJson(vertxMessageRecord));
 
                     CompletableFuture.runAsync(() -> {
                         try {
@@ -44,14 +45,14 @@ public class OneVerticle extends BaseVerticle {
                     break;
                 }
 
-                case "b": {
+                case CommonCode.COMMAND_TYPE_B: {
                     System.out.println("bb " + vertxMessageRecord);
 
                     break;
                 }
 
-                case "c": {
-                    getMessageProducer("event-200").write(vertxMessageRecord);
+                case CommonCode.COMMAND_TYPE_C: {
+                    getMessageProducer(CommonCode.EVENT_BUS_ADDRESS_TWO).write(vertxMessageRecord);
 
                     break;
                 }

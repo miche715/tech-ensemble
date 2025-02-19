@@ -3,13 +3,13 @@ import core.abtwo.verticle.TwoVerticle;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import core.aaone.verticle.OneVerticle;
-import core.server.verticle.ServerVerticle;
+import core.gate.verticle.GateVerticle;
 
 public class MainVerticle extends AbstractVerticle {
     public static void main(String[] args) {
         Vertx vertx = Vertx.vertx();
 
-        vertx.deployVerticle(new ServerVerticle());
+        vertx.deployVerticle(new GateVerticle());
         vertx.deployVerticle(new OneVerticle());
         vertx.deployVerticle(new TwoVerticle());
         vertx.deployVerticle(new ThreeVerticle());

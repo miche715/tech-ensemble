@@ -1,5 +1,5 @@
-import socket
 import json
+import socket
 
 # 서버 주소와 포트
 HOST = '127.0.0.1'  # 서버의 IP 주소 (로컬 서버)
@@ -8,7 +8,7 @@ PORT = 1234  # 서버의 포트 번호
 # JSON 형식의 메시지 생성
 message_data = {
     "verticleType": "one",  # 원하는 verticleType 설정
-    "commandType": "c",  # 원하는 commandType 설정
+    "commandType": "a",  # 원하는 commandType 설정
     "message": "Hello, Vert.x!"
 }
 

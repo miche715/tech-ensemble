@@ -1,18 +1,12 @@
-package core.server.verticle;
+package core.gate.verticle;
 
+import common.code.CommonCode;
 import common.record.VertxMessageRecord;
 import common.vertx.BaseVerticle;
 import common.vertx.VertxMessageRecordCodec;
 import io.vertx.core.Promise;
 
-public class ServerVerticle extends BaseVerticle {
-//    private final Gson gson = GsonProvider.getInstance();
-//    private final Map<String, MessageProducer<VertxMessageRecord>> messageProducerMap = new HashMap<>();
-//
-//    private MessageProducer<VertxMessageRecord> getMessageProducer(String address) {
-//        return messageProducerMap.computeIfAbsent(address, key -> vertx.eventBus().publisher(key));
-//    }
-
+public class GateVerticle extends BaseVerticle {
     @Override
     public void start(Promise<Void> startPromise) {
         vertx.eventBus().registerDefaultCodec(VertxMessageRecord.class, new VertxMessageRecordCodec());
@@ -22,23 +16,23 @@ public class ServerVerticle extends BaseVerticle {
 
             socket.handler(buffer -> {
                 VertxMessageRecord vertxMessageRecord = gson.fromJson(buffer.toString(), VertxMessageRecord.class);
-                System.out.println("\nReceive Packet: " + vertxMessageRecord);
+                System.out.println("\nReceive Packet: " + socket.remoteAddress() + " " + vertxMessageRecord);
 
                 switch(vertxMessageRecord.verticleType()) {
-                    case "one": {
-                        getMessageProducer("event-100").write(vertxMessageRecord);
+                    case CommonCode.VERTICLE_TYPE_ONE: {
+                        getMessageProducer(CommonCode.EVENT_BUS_ADDRESS_ONE).write(vertxMessageRecord);
 
                         break;
                     }
 
-                    case "two": {
-                        getMessageProducer("event-200").write(vertxMessageRecord);
+                    case CommonCode.VERTICLE_TYPE_TWO: {
+                        getMessageProducer(CommonCode.EVENT_BUS_ADDRESS_TWO).write(vertxMessageRecord);
 
                         break;
                     }
 
-                    case "three": {
-                        getMessageProducer("event-300").write(vertxMessageRecord);
+                    case CommonCode.VERTICLE_TYPE_THREE: {
+                        getMessageProducer(CommonCode.EVENT_BUS_ADDRESS_THREE).write(vertxMessageRecord);
 
                         break;
                     }
