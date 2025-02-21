@@ -3,7 +3,9 @@ package core.aaone.verticle;
 import common.code.CommonCode;
 import common.kafka.KafkaPropertyProvider;
 import common.record.VertxMessageRecord;
+import common.sql.SqlQueryString;
 import common.vertx.BaseVerticle;
+import core.aaone.record.OneUserResponseRecord;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
@@ -28,13 +30,24 @@ public class OneVerticle extends BaseVerticle {
             switch(vertxMessageRecord.commandType()) {
                 case CommonCode.COMMAND_TYPE_A: {
                     System.out.println("A");
+                    String uuid = "'" + vertxMessageRecord.verticleType() + "_uuid" + "'";
 
-                    sqlClient.query("SELECT uuid, user_id FROM t_user")
+                    sqlClient.query(SqlQueryString.selectUser + uuid)
                              .execute()
                              .onSuccess(rows -> {
+                                 VertxMessageRecord replyVertxMessageRecord = null;
+
                                  for(Row row : rows) {
-                                     System.out.println("User ID: " + row.getString("uuid") + ", Name: " + row.getString("user_id"));
+                                     replyVertxMessageRecord = VertxMessageRecord.of(
+                                             vertxMessageRecord.verticleType(),
+                                             vertxMessageRecord.commandType(),
+                                             OneUserResponseRecord.of(
+                                                     row.getString("uuid"),
+                                                     row.getString("user_id"),
+                                                     row.getString("user_name")));
                                  }
+
+                                 message.reply(replyVertxMessageRecord);
                              })
                              .onFailure(err -> System.err.println("Query Failed: " + err.getMessage()));
 

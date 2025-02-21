@@ -20,8 +20,7 @@ public class SqlClientProvider {
                         .setHost("127.0.0.1")
                         .setDatabase("postgres")
                         .setUser("postgres")
-                        .setPassword("1q2w3e4r")
-                        /*.addProperty("sslmode", "disable")*/)
+                        .setPassword("1q2w3e4r"))
                 .build();
     }
 }
