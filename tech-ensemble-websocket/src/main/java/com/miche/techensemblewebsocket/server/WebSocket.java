@@ -3,26 +3,38 @@ package com.miche.techensemblewebsocket.server;
 import com.google.gson.Gson;
 import com.miche.techensemblewebsocket.common.Define;
 import com.miche.techensemblewebsocket.common.User;
+import com.miche.techensemblewebsocket.common.code.CommonCode;
 import com.miche.techensemblewebsocket.common.gson.GsonProvider;
+import com.miche.techensemblewebsocket.configuration.EndPointConfigurator;
 import jakarta.persistence.PersistenceException;
 import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 @Component
-@ServerEndpoint(value = "/tech-ensemble")
+@ServerEndpoint(value = "/tech-ensemble", configurator = EndPointConfigurator.class)
 public class WebSocket {
     private final Gson gson = GsonProvider.getInstance();
+
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    public WebSocket(RedisTemplate<String, Object> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
 
     @OnOpen
     public void onOpen(Session session) {
         try {
             User user = new User(session);
             Define.USERS.put(session.getId(), user);
-            System.out.println(Define.USERS.get(session.getId()));
 
+            user.sendOne("InitialService", "InitialMethod", redisTemplate.opsForList()
+                                                                                                 .range(CommonCode.TOPIC, 0, -1));
         } catch(PersistenceException | NullPointerException | IllegalArgumentException e) {
             System.out.println("onOpen Error: " + e.getMessage());
         }

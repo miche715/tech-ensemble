@@ -7,7 +7,10 @@ import com.miche.techensemblewebsocket.common.send.Sender;
 import com.miche.techensemblewebsocket.server.bypass.record.BypassTopic100ResponseRecord;
 import com.miche.techensemblewebsocket.server.bypass.record.BypassTopic200ResponseRecord;
 import com.miche.techensemblewebsocket.server.bypass.record.BypassTopic300ResponseRecord;
+import lombok.AllArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +19,13 @@ public class BypassListener {
     private final Gson gson = GsonProvider.getInstance();
     private final Sender sender = Sender.getInstance();
 
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    public BypassListener(RedisTemplate<String, Object> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
+
     @KafkaListener(topics = CommonCode.TOPIC_100, groupId = CommonCode.GROUP_101)
     public void listenTopic100(ConsumerRecord<String, String> consumerRecord) {
         BypassTopic100ResponseRecord bypassTopic100ResponseRecord = gson.fromJson(consumerRecord.value(), BypassTopic100ResponseRecord.class);
@@ -23,6 +33,10 @@ public class BypassListener {
 
         sender.sendAll("BypassListener", "listenTopic100", bypassTopic100ResponseRecord);
         System.out.println("listenTopic100 send complete");
+
+        redisTemplate.opsForList().rightPush(CommonCode.TOPIC_100, bypassTopic100ResponseRecord);
+        redisTemplate.opsForList().rightPush(CommonCode.TOPIC, bypassTopic100ResponseRecord);
+        System.out.println("listenTopic100 redis save complete");
     }
 
     @KafkaListener(topics = CommonCode.TOPIC_200, groupId = CommonCode.GROUP_201)
@@ -32,6 +46,10 @@ public class BypassListener {
 
         sender.sendAll("BypassListener", "listenTopic200", bypassTopic200ResponseRecord);
         System.out.println("listenTopic200 send complete");
+
+        redisTemplate.opsForList().rightPush(CommonCode.TOPIC_200, bypassTopic200ResponseRecord);
+        redisTemplate.opsForList().rightPush(CommonCode.TOPIC, bypassTopic200ResponseRecord);
+        System.out.println("listenTopic200 redis save complete");
     }
 
     @KafkaListener(topics = CommonCode.TOPIC_300, groupId = CommonCode.GROUP_301)
@@ -41,5 +59,9 @@ public class BypassListener {
 
         sender.sendAll("BypassListener", "listenTopic300", bypassTopic300ResponseRecord);
         System.out.println("listenTopic300 send complete");
+
+        redisTemplate.opsForList().rightPush(CommonCode.TOPIC_300, bypassTopic300ResponseRecord);
+        redisTemplate.opsForList().rightPush(CommonCode.TOPIC, bypassTopic300ResponseRecord);
+        System.out.println("listenTopic300 redis save complete");
     }
 }
