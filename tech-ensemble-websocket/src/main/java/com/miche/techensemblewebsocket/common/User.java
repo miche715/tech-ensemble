@@ -1,18 +1,19 @@
 package com.miche.techensemblewebsocket.common;
 
-import com.google.gson.Gson;
-import com.miche.techensemblewebsocket.common.gson.GsonProvider;
+import com.miche.techensemblewebsocket.common.base.BaseClass;
 import com.miche.techensemblewebsocket.common.send.ResponseRecord;
 import jakarta.websocket.Session;
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 @Getter
 @Setter
-public class User {
-    private final Gson gson = GsonProvider.getInstance();
+public class User extends BaseClass {
+    private final Logger logger = LoggerFactory.getLogger(User.class);
     
     private Session session;
 
@@ -26,7 +27,7 @@ public class User {
                 send(gson.toJson(ResponseRecord.of(serviceName, methodName, data)));
             }
         } catch(IOException e) {
-            System.out.println("sendOne Error: " + e.getMessage());
+            logger.info("{}exception -> {}", super.getLogPrefix(new Object(){}), e.getMessage());
         }
     }
 

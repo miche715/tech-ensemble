@@ -13,10 +13,13 @@ import io.vertx.sqlclient.Row;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 
 public class OneVerticle extends BaseVerticle {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Producer<String, String> kafkaProducer = new KafkaProducer<>(KafkaPropertyProvider.getKafkaProducerProperties());
 
     @Override
@@ -24,12 +27,11 @@ public class OneVerticle extends BaseVerticle {
         MessageConsumer<VertxMessageRecord> messageConsumer = vertx.eventBus().consumer(CommonCode.EVENT_BUS_ADDRESS_ONE);
 
         messageConsumer.handler((Message<VertxMessageRecord> message) -> {
-            System.out.print("OneVerticle ");
             VertxMessageRecord vertxMessageRecord = message.body();
 
             switch(vertxMessageRecord.commandType()) {
                 case CommonCode.COMMAND_TYPE_A: {
-                    System.out.println("A");
+                    logger.info("{}A receive event complete", super.getLogPrefix(new Object(){}));
                     String uuid = "'" + vertxMessageRecord.verticleType() + "_uuid" + "'";
 
                     sqlClient.query(SqlQueryString.selectUser + uuid)
@@ -49,21 +51,21 @@ public class OneVerticle extends BaseVerticle {
 
                                  message.reply(replyVertxMessageRecord);
                              })
-                             .onFailure(err -> System.err.println("Query Failed: " + err.getMessage()));
+                             .onFailure(throwable -> logger.error("{}A query exception -> {}", super.getLogPrefix(new Object(){}), throwable.getMessage()));
 
                     break;
                 }
 
                 case CommonCode.COMMAND_TYPE_B: {
-                    System.out.println("B");
+                    logger.info("{}B receive event complete", super.getLogPrefix(new Object(){}));
                     ProducerRecord<String, String> producerRecord = new ProducerRecord<>(CommonCode.TOPIC_100, gson.toJson(vertxMessageRecord));
 
                     CompletableFuture.runAsync(() -> {
                         kafkaProducer.send(producerRecord, (metadata, exception) -> {
                             if(exception == null) {
-                                System.out.println("Kafka message sent successfully: " + metadata);
+                                logger.info("{}B kafka send complete -> {}", super.getLogPrefix(new Object(){}), metadata);
                             } else {
-                                System.err.println("Failed to send Kafka message: " + exception.getMessage());
+                                logger.error("{}B exception -> {}", super.getLogPrefix(new Object(){}), exception.getMessage());
                             }
                         });
                     });
@@ -72,14 +74,14 @@ public class OneVerticle extends BaseVerticle {
                 }
 
                 case CommonCode.COMMAND_TYPE_C: {
-                    System.out.println("C");
+                    logger.info("{}C receive event complete", super.getLogPrefix(new Object(){}));
                     getMessageProducer(CommonCode.EVENT_BUS_ADDRESS_TWO).write(vertxMessageRecord);
 
                     break;
                 }
 
                 case CommonCode.COMMAND_TYPE_D: {
-                    System.out.println("D");
+                    logger.info("{}D receive event complete", super.getLogPrefix(new Object(){}));
 
                     break;
                 }

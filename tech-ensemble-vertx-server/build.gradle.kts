@@ -14,6 +14,9 @@ dependencies {
     implementation("io.vertx:vertx-core:4.5.11")
     implementation("io.vertx:vertx-pg-client:4.5.13")
 
+    /* postgresql 연결 시 오류 해결용 */
+    implementation("com.ongres.scram:client:2.1")
+
     implementation("org.apache.kafka:kafka_2.13:3.9.0")
     implementation("org.apache.kafka:kafka-clients:3.9.0")
 
@@ -21,7 +24,8 @@ dependencies {
 
     compileOnly("org.projectlombok:lombok:1.18.30")
 
-    implementation("com.ongres.scram:client:2.1")
+    implementation("org.slf4j:slf4j-api:2.0.9")
+    implementation("ch.qos.logback:logback-classic:1.4.14")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")

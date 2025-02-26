@@ -1,14 +1,15 @@
 package com.miche.techensemblewebsocket.server;
 
-import com.google.gson.Gson;
 import com.miche.techensemblewebsocket.common.Define;
 import com.miche.techensemblewebsocket.common.User;
+import com.miche.techensemblewebsocket.common.base.BaseClass;
 import com.miche.techensemblewebsocket.common.code.CommonCode;
-import com.miche.techensemblewebsocket.common.gson.GsonProvider;
 import com.miche.techensemblewebsocket.configuration.EndPointConfigurator;
 import jakarta.persistence.PersistenceException;
 import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -17,8 +18,8 @@ import java.io.IOException;
 
 @Component
 @ServerEndpoint(value = "/tech-ensemble", configurator = EndPointConfigurator.class)
-public class WebSocket {
-    private final Gson gson = GsonProvider.getInstance();
+public class WebSocket extends BaseClass {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -32,11 +33,12 @@ public class WebSocket {
         try {
             User user = new User(session);
             Define.USERS.put(session.getId(), user);
+            logger.info("{}connect complete -> {}", super.getLogPrefix(new Object(){}), session.getId());
 
-            user.sendOne("InitialService", "InitialMethod", redisTemplate.opsForList()
-                                                                                                 .range(CommonCode.TOPIC, 0, -1));
+            user.sendOne("InitialService", "InitialMethod", redisTemplate.opsForList().range(CommonCode.TOPIC, 0, -1));
+            logger.info("{}send complete", super.getLogPrefix(new Object(){}));
         } catch(PersistenceException | NullPointerException | IllegalArgumentException e) {
-            System.out.println("onOpen Error: " + e.getMessage());
+            logger.info("{}exception -> {}", super.getLogPrefix(new Object(){}), e.getMessage());
         }
     }
 
@@ -92,13 +94,15 @@ public class WebSocket {
         try {
             Define.USERS.remove(session.getId());
             session.close();
+            logger.info("{}disconnect complete -> {}", super.getLogPrefix(new Object(){}), session.getId());
         } catch(ClassCastException | NullPointerException | UnsupportedOperationException | IOException e) {
-            System.out.println("onClose Error: " + e.getMessage());
+            logger.info("{}exception -> {}", super.getLogPrefix(new Object(){}), e.getMessage());
         }
     }
 
     @OnError
     public void onError(Throwable e) {
-        System.out.println("onError Error: " + e.getMessage());
+        logger.info("{}exception -> {}", super.getLogPrefix(new Object(){}), e.getMessage());
+        e.printStackTrace();
     }
 }
