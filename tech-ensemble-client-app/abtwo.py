@@ -3,7 +3,7 @@ import socket
 
 # 서버 주소와 포트
 HOST = '127.0.0.1'  # 서버의 IP 주소 (로컬 서버)
-PORT = 1234  # 서버의 포트 번호
+PORT = 7000  # 서버의 포트 번호
 
 # JSON 형식의 메시지 생성
 message_data = {

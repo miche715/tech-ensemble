@@ -100,7 +100,7 @@ public class GateVerticle extends BaseVerticle {
             socket.closeHandler(handler -> {
                 logger.info("{}disconnect complete -> {}", super.getLogPrefix(new Object(){}), socket.remoteAddress());
             });
-        }).listen(1234, result -> {
+        }).listen(7000, result -> {
             if(result.succeeded()) {
                 logger.info("{}server start complete on port -> {}", super.getLogPrefix(new Object(){}), result.result().actualPort());
                 startPromise.complete();
