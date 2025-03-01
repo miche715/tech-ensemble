@@ -13,15 +13,13 @@ public class SqlClientProvider {
     private static class LazyHolder {
         private static final SqlClient SQL_CLIENT = PgBuilder
                 .client()
-                .with(new PoolOptions()
-                        .setMaxSize(5))
-                .connectingTo(new PgConnectOptions()
-                        .setPort(5432)
-                        // .setHost("127.0.0.1")
-                        .setHost("host.docker.internal")
-                        .setDatabase("postgres")
-                        .setUser("postgres")
-                        .setPassword("1q2w3e4r"))
+                .with(new PoolOptions().setMaxSize(5))
+                .connectingTo(new PgConnectOptions().setPort(5432)
+                                                    // .setHost("host.docker.internal")
+                                                    .setHost("localhost")
+                                                    .setDatabase("postgres")
+                                                    .setUser("postgres")
+                                                    .setPassword("1q2w3e4r"))
                 .build();
     }
 }
