@@ -15,7 +15,6 @@ public class SqlClientProvider {
                 .client()
                 .with(new PoolOptions().setMaxSize(5))
                 .connectingTo(new PgConnectOptions().setPort(5432)
-                                                    // .setHost("host.docker.internal")
                                                     .setHost("localhost")
                                                     .setDatabase("postgres")
                                                     .setUser("postgres")
