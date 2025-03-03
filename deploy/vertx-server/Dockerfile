@@ -5,7 +5,7 @@ FROM eclipse-temurin:17-jdk
 WORKDIR /app
 
 # JAR 파일 복사
-COPY build/libs/*.jar tech-ensemble-vertx-server-0.0.1.jar
+COPY *.jar tech-ensemble-vertx-server-0.0.1.jar
 
 # 7000 포트 오픈
 EXPOSE 7000

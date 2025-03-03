@@ -5,7 +5,7 @@ FROM eclipse-temurin:17-jdk
 WORKDIR /app
 
 # JAR 파일 복사
-COPY build/libs/*.jar tech-ensemble-websocket-0.0.1.jar
+COPY *.jar tech-ensemble-websocket-0.0.1.jar
 
 # 7002 포트 오픈
 EXPOSE 7002
