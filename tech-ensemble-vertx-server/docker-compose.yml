@@ -23,9 +23,9 @@ services:
     networks:
       - tech-ensemble-network
 
-  kafka:
+  kafka-1:
     image: confluentinc/cp-kafka:7.5.3
-    container_name: kafka
+    container_name: kafka-1
     platform: linux/amd64
     ports:
       - "9092:9092"
@@ -33,34 +33,77 @@ services:
       KAFKA_ENABLE_KRAFT: "yes"
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: "broker,controller"
-      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:29093"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka-1:29093,2@kafka-2:29093,3@kafka-3:29093"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
       KAFKA_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:29093"
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka-1:9092"
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
     networks:
       - tech-ensemble-network
 
+  kafka-2:
+    image: confluentinc/cp-kafka:7.5.3
+    container_name: kafka-2
+    platform: linux/amd64
+    ports:
+      - "9093:9093"
+    environment:
+      KAFKA_ENABLE_KRAFT: "yes"
+      KAFKA_NODE_ID: 2
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka-1:29093,2@kafka-2:29093,3@kafka-3:29093"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_LISTENERS: "PLAINTEXT://:9093,CONTROLLER://:29093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka-2:9093"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+    networks:
+      - tech-ensemble-network
+
+  kafka-3:
+    image: confluentinc/cp-kafka:7.5.3
+    container_name: kafka-3
+    platform: linux/amd64
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_ENABLE_KRAFT: "yes"
+      KAFKA_NODE_ID: 3
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka-1:29093,2@kafka-2:29093,3@kafka-3:29093"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_LISTENERS: "PLAINTEXT://:9094,CONTROLLER://:29093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka-3:9094"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+    networks:
+      - tech-ensemble-network
+
+  # Kafka UI
   kafka-ui:
     image: provectuslabs/kafka-ui
     container_name: kafka-ui
     platform: linux/amd64
     ports:
-      - "9090:8080"
+      - "9090:8080"  # Kafka UI 접속 포트
     environment:
       KAFKA_CLUSTERS_0_NAME: tech-ensemble
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-1:9092,kafka-2:9093,kafka-3:9094
     depends_on:
-      - kafka
+      - kafka-1
+      - kafka-2
+      - kafka-3
     networks:
       - tech-ensemble-network
 
+  # 기존 애플리케이션 서비스들
   tech-ensemble-vertx-server:
     image: tech-ensemble-vertx-server:latest
     platform: linux/amd64
-    #    container_name: tech-ensemble-vertx-server
     ports:
       - "7000:7000"
     networks:
@@ -69,7 +112,6 @@ services:
   tech-ensemble-log-db:
     image: tech-ensemble-log-db:latest
     platform: linux/amd64
-    #    container_name: tech-ensemble-log-db
     ports:
       - "7001:7001"
     networks:
@@ -78,7 +120,6 @@ services:
   tech-ensemble-websocket:
     image: tech-ensemble-websocket:latest
     platform: linux/amd64
-    #    container_name: tech-ensemble-websocket
     ports:
       - "7002:7002"
     networks:
