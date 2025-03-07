@@ -83,7 +83,6 @@ services:
     networks:
       - tech-ensemble-network
 
-  # Kafka UI
   kafka-ui:
     image: provectuslabs/kafka-ui
     container_name: kafka-ui
@@ -100,7 +99,6 @@ services:
     networks:
       - tech-ensemble-network
 
-  # 기존 애플리케이션 서비스들
   tech-ensemble-vertx-server:
     image: tech-ensemble-vertx-server:latest
     platform: linux/amd64
